@@ -1,0 +1,382 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.MainPage">
+
+    <Grid>
+
+        <!-- Fond : photo salle + dégradé par-dessus -->
+        <Image Source="gym.jpg"
+               Aspect="AspectFill" />
+        <BoxView Background="{StaticResource BackdropGradientBrush}" />
+
+        <ScrollView>
+            <Grid RowDefinitions="Auto,*"
+                  Padding="24,28,24,28"
+                  RowSpacing="18">
+
+                <!-- Titre de l'app -->
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="*,Auto"
+                      ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="6"
+                                         VerticalOptions="Center">
+                        <Label Text="Workout Calculator"
+                               Style="{StaticResource TitleXL}" />
+                        <Label Text="Train smarter, not harder"
+                               Style="{StaticResource BodyMuted}" />
+                    </VerticalStackLayout>
+
+                    <Border Grid.Column="1"
+                            WidthRequest="44"
+                            HeightRequest="44"
+                            Stroke="{StaticResource Stroke0}"
+                            BackgroundColor="#14172A"
+                            StrokeThickness="1">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="14" />
+                        </Border.StrokeShape>
+                        <Label Text="⚙"
+                               FontSize="18"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource TextSecondary}" />
+                    </Border>
+                </Grid>
+
+                <!-- Corps de page (saisie, coach, historique) -->
+                <VerticalStackLayout Grid.Row="1"
+                                     Spacing="14">
+
+                    <Frame Style="{StaticResource InputCardFrame}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Poids total"
+                                   Style="{StaticResource Caption}" />
+                            <Entry x:Name="TotalWeightEntry"
+                                   Placeholder="ex: 100"
+                                   Keyboard="Numeric"
+                                   ClearButtonVisibility="WhileEditing" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Grid ColumnDefinitions="*,*,*"
+                          ColumnSpacing="10">
+                        <Button Grid.Column="0"
+                                Text="+2.5"
+                                Clicked="OnAdd2_5"
+                                Style="{StaticResource ChipButton}" />
+                        <Button Grid.Column="1"
+                                Text="+5"
+                                Clicked="OnAdd5"
+                                Style="{StaticResource ChipButtonAccent}" />
+                        <Button Grid.Column="2"
+                                Text="-2.5"
+                                Clicked="OnRemove2_5"
+                                Style="{StaticResource ChipButton}" />
+                    </Grid>
+
+                    <Frame Style="{StaticResource InputCardFrame}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Poids de la barre"
+                                   Style="{StaticResource Caption}" />
+                            <Entry x:Name="BarWeightEntry"
+                                   Placeholder="ex: 20"
+                                   Keyboard="Numeric"
+                                   ClearButtonVisibility="WhileEditing" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame Style="{StaticResource InputCardFrame}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Objectif"
+                                   Style="{StaticResource Caption}" />
+                            <Picker x:Name="GoalPicker"
+                                    Title="Choisir…">
+                                <Picker.Items>
+                                    <x:String>Force</x:String>
+                                    <x:String>Hypertrophie</x:String>
+                                    <x:String>Endurance</x:String>
+                                </Picker.Items>
+                            </Picker>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Button Text="Calculer"
+                            Clicked="OnCalculateClicked"
+                            Style="{StaticResource PrimaryButton}" />
+
+                    <Frame Style="{StaticResource CardFrame}">
+                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+
+                            <Label Text="Temps de séance"
+               FontSize="16"
+               TextColor="White"/>
+
+                            <Label x:Name="TimerLabel"
+               Text="00:00:00"
+               FontSize="28"
+               FontAttributes="Bold"
+               TextColor="#7B5CFF"
+               HorizontalOptions="Center"/>
+
+
+
+                            <HorizontalStackLayout Spacing="15" HorizontalOptions="Center">
+
+                                <!-- Démarrer / reprendre le chrono -->
+                                <Button Text="▶"
+            WidthRequest="70"
+            HeightRequest="70"
+            CornerRadius="35"
+            BackgroundColor="#7B5CFF"
+            TextColor="White"
+            FontSize="22"
+            Clicked="OnStartTimer" />
+
+                                <!-- Mettre en pause -->
+                                <Button Text="⏸"
+            WidthRequest="70"
+            HeightRequest="70"
+            CornerRadius="35"
+            BackgroundColor="#2A2F45"
+            TextColor="White"
+            FontSize="22"
+            Clicked="OnPauseTimer" />
+
+                                <!-- Arrêter et remettre à zéro -->
+                                <Button Text="⏹"
+            WidthRequest="70"
+            HeightRequest="70"
+            CornerRadius="35"
+            BackgroundColor="#1A1A1A"
+            BorderColor="#444"
+            BorderWidth="1"
+            TextColor="White"
+            FontSize="22"
+            Clicked="OnStopTimer" />
+
+                            </HorizontalStackLayout>
+
+
+
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+
+                        <!-- Colonne gauche : blocs coach (échauffement, travail, conseils) -->
+                        <CollectionView x:Name="ResultView"
+                                        Grid.Column="0">
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+
+                                    <Frame BackgroundColor="#1A1A1A"
+                   CornerRadius="15"
+                   Padding="15"
+                   Margin="0,5">
+
+                                        <VerticalStackLayout Spacing="8">
+
+                                            <Label Text="{Binding Title}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#7B5CFF"/>
+
+                                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Lines}">
+                                                <BindableLayout.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Label Text="{Binding}"
+                                       FontSize="14"
+                                       TextColor="White"/>
+                                                    </DataTemplate>
+                                                </BindableLayout.ItemTemplate>
+                                            </VerticalStackLayout>
+
+                                        </VerticalStackLayout>
+
+                                    </Frame>
+
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+
+
+                        <!-- Colonne droite : grande image objectif (zoom pour éviter les bandes noires) -->
+                        <Border Grid.Column="1"
+                                Margin="0,15"
+                                Padding="0"
+                                BackgroundColor="#1A1A1A"
+                                StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="20" />
+                            </Border.StrokeShape>
+                            <Grid VerticalOptions="Fill"
+                                  HorizontalOptions="Fill">
+                                <Grid IsClippedToBounds="True"
+                                      VerticalOptions="Fill"
+                                      HorizontalOptions="Fill">
+                                    <Image x:Name="ExerciseImage"
+                                           Aspect="AspectFill"
+                                           VerticalOptions="Fill"
+                                           HorizontalOptions="Fill"
+                                           Scale="1.35" />
+                                </Grid>
+
+                                <BoxView Color="#000000"
+                                         Opacity="0.3"
+                                         VerticalOptions="Fill"
+                                         HorizontalOptions="Fill" />
+
+                                <Label x:Name="ExerciseTitle"
+                                       TextColor="White"
+                                       FontSize="22"
+                                       FontAttributes="Bold"
+                                       Margin="15"
+                                       VerticalOptions="End" />
+                            </Grid>
+                        </Border>
+
+                    </Grid>
+
+                    <Label Text="Exercices"
+                      FontSize="20"
+                     TextColor="#7B5CFF"
+                           />
+                    <CollectionView x:Name="ExerciseView"
+                HeightRequest="260"
+                Margin="0,10,0,0"
+                ItemsLayout="HorizontalList"
+                HorizontalScrollBarVisibility="Never">
+
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal"
+                           ItemSpacing="18"/>
+                        </CollectionView.ItemsLayout>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+
+                                <Frame WidthRequest="270"
+                   HeightRequest="300"
+                   Padding="0"
+                   CornerRadius="28"
+                   HasShadow="False"
+                   BackgroundColor="#1A1A1A"
+                   IsClippedToBounds="True">
+
+                                    <Grid>
+
+                                        <!-- Photo de l'exercice -->
+                                        <Image Source="{Binding Image}"
+                           Aspect="AspectFill" />
+
+                                        <!-- Bandeau dégradé en bas pour lire le titre -->
+                                        <Grid VerticalOptions="End"
+                          HeightRequest="90">
+
+                                            <BoxView>
+                                                <BoxView.Background>
+                                                    <LinearGradientBrush StartPoint="0,0"
+                                                     EndPoint="0,1">
+                                                        <GradientStop Color="#00000000"
+                                                  Offset="0.0"/>
+                                                        <GradientStop Color="#CC000000"
+                                                  Offset="1.0"/>
+                                                    </LinearGradientBrush>
+                                                </BoxView.Background>
+                                            </BoxView>
+
+                                        </Grid>
+
+                                        <!-- Nom de l'exercice -->
+                                        <Label Text="{Binding Name}"
+                           TextColor="White"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           Margin="18"
+                           VerticalOptions="End" />
+
+                                    </Grid>
+
+                                </Frame>
+
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+
+                    </CollectionView>
+
+                    <Label Text="Historique"
+       Style="{StaticResource TitleL}"
+       Margin="0,6,0,0" />
+
+                    <CollectionView x:Name="HistoryView"
+                SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <SwipeView>
+                                    <SwipeView.RightItems>
+                                        <SwipeItems Mode="Reveal">
+                                            <SwipeItem Text="Supprimer"
+                                   Invoked="OnDeleteSession"
+                                   CommandParameter="{Binding .}" />
+                                        </SwipeItems>
+                                    </SwipeView.RightItems>
+
+                                    <Frame Style="{StaticResource CardFrame}"
+                       Margin="0,6">
+                                        <Grid RowDefinitions="Auto,Auto"
+                          RowSpacing="8">
+                                            <Grid Grid.Row="0"
+                              ColumnDefinitions="*,Auto"
+                              ColumnSpacing="10">
+                                                <VerticalStackLayout Spacing="3">
+                                                    <Label Text="{Binding Weight, StringFormat='{0:0.#} kg'}"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="17"
+                                       TextColor="{StaticResource TextPrimary}" />
+                                                    <Label Text="{Binding DetailLine}"
+                                       FontSize="12"
+                                       LineBreakMode="WordWrap"
+                                       MaxLines="2"
+                                       TextColor="{StaticResource TextSecondary}" />
+                                                </VerticalStackLayout>
+                                                <Border Grid.Column="1"
+                                    Padding="10,6"
+                                    VerticalOptions="Start"
+                                    BackgroundColor="#14172A"
+                                    Stroke="{StaticResource Stroke0}">
+                                                    <Border.StrokeShape>
+                                                        <RoundRectangle CornerRadius="999" />
+                                                    </Border.StrokeShape>
+                                                    <Label Text="{Binding Goal}"
+                                       FontSize="12"
+                                       FontFamily="OpenSansSemibold"
+                                       TextColor="{StaticResource TextSecondary}" />
+                                                </Border>
+                                            </Grid>
+
+                                            <Label Grid.Row="1"
+                               Text="{Binding Date, StringFormat='{0:ddd dd MMM · HH:mm}'}"
+                               Style="{StaticResource Caption}" />
+                                        </Grid>
+                                    </Frame>
+                                </SwipeView>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <BoxView HeightRequest="20"
+                             Opacity="0" />
+                </VerticalStackLayout>
+
+            </Grid>
+
+        </ScrollView>
+
+    </Grid>
+
+
+
+</ContentPage>
